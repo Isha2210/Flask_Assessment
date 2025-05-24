@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Assessment Software{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Employee Directory</h4>
+            </div>
+            <div class="card-body">
+                {% if users %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr {% if user.id == current_user.id %}class="table-info"{% endif %}>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if user.role == 'admin' else 'primary' }}">
+                                        {{ user.role.title() }}
+                                    </span>
+                                </td>
+                                <td>{{ user.email or 'Not provided' }}</td>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>No employees found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Your Profile</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ current_user.username }}</p>
+                <p><strong>Role:</strong> {{ current_user.role.title() }}</p>
+                <p><strong>Email:</strong> {{ current_user.email or 'Not provided' }}</p>
+                <p><strong>Member since:</strong> {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>Your Assessments</h5>
+            </div>
+            <div class="card-body">
+                {% if assessments %}
+                    {% for assessment in assessments %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <strong>{{ assessment.assessment_name }}</strong><br>
+                        <small class="text-muted">{{ assessment.completed_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        {% if assessment.score %}
+                        <br><span class="badge bg-info">Score: {{ assessment.score }}</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No assessments yet.</p>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('create_assessment') }}" class="mt-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="assessment_name" placeholder="New assessment name">
+                        <button class="btn btn-success" type="submit">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
